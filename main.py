@@ -1,6 +1,11 @@
-# start this with:
+# develope on this with:
 # poetry install
 # poetry run uvicorn main:app --reload
+
+# async example: https://github.com/tiangolo/sqlmodel/issues/54
+
+# example wrk2:
+# ./wrk -t10 -c100 -d20s -R1000 http://localhost:8000/samples/1
 
 from datetime import datetime
 from typing import Optional
@@ -30,7 +35,11 @@ class SampleRead(SampleBase):
     id: int
 
 db_path = Path(__file__).parent / "bleh.db"
-engine = create_engine(f"sqlite:///{db_path}", echo=True)
+# disabling sqlite's same thread check because this is a toy, and I'm only
+# benchmarking reads.
+# https://stackoverflow.com/questions/48218065/programmingerror-sqlite-objects-created-in-a-thread-can-only-be-used-in-that-sa
+# echo=True for developing, False otherwise
+engine = create_engine(f"sqlite:///{db_path}", echo=False, connect_args={"check_same_thread": False})
 
 def get_session():
     with Session(engine) as session:
