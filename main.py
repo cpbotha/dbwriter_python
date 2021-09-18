@@ -64,9 +64,8 @@ def add_sample(sample: SampleCreate, session: Session = Depends(get_session)):
     return db_sample
 
 @app.get("/samples/{sample_id}", response_model=SampleRead)
-def read_item(sample_id: int, session: Session = Depends(get_session)):
-    statement = select(Sample).where(Sample.id == sample_id)
-    sample = session.exec(statement).first()
+def get_sample(sample_id: int, session: Session = Depends(get_session)):
+    sample = session.get(Sample, sample_id)
     if sample is None:
         raise HTTPException(status_code=404, detail=f"sample with id {sample_id} not found")
     return sample
