@@ -5,11 +5,6 @@
 # run in prod with something like:
 # poetry run uvicorn main:app --workers 12 --log-level warning
 
-# async example: https://github.com/tiangolo/sqlmodel/issues/54
-
-# example wrk2:
-# ./wrk -t10 -c100 -d20s -R1000 http://localhost:8000/samples/1
-
 from datetime import datetime
 from typing import Optional
 from pathlib import Path
@@ -20,8 +15,9 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import create_engine, Field, Session, SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+# async_db (with postgres) gives around 30% more RPS than sync_db
 DB = 'postgres'
-ASYNC_DB = False
+ASYNC_DB = True
 
 # we need multiple models so that schema is correctly interpreted between
 # database, POST and GET, each of these sometimes with different optional /
