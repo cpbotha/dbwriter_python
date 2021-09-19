@@ -10,6 +10,8 @@ fastapi = "*"
 sqlmodel = "*"
 uvicorn = "*"
 aiosqlite = "^0.17.0"
+psycopg2 = "^2.9.1"
+asyncpg = "^0.24.0"
 
 [tool.poetry.dev-dependencies]
 
