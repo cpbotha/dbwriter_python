@@ -1,6 +1,9 @@
-# develope on this with:
+# develop on this with:
 # poetry install
 # poetry run uvicorn main:app --reload
+
+# run in prod with something like:
+# poetry run uvicorn main:app --workers 12 --log-level warning
 
 # async example: https://github.com/tiangolo/sqlmodel/issues/54
 
@@ -13,7 +16,9 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy import select
+#from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import create_engine, Field, Session, SQLModel
+#from sqlmodel.ext.asyncio.session import AsyncSession
 
 # we need multiple models so that schema is correctly interpreted between
 # database, POST and GET, each of these sometimes with different optional /
@@ -40,7 +45,10 @@ db_path = Path(__file__).parent / "bleh.db"
 # https://stackoverflow.com/questions/48218065/programmingerror-sqlite-objects-created-in-a-thread-can-only-be-used-in-that-sa
 # echo=True for developing, False otherwise
 engine = create_engine(f"sqlite:///{db_path}", echo=False, connect_args={"check_same_thread": False})
+# async:
+#engine = create_async_engine(f"sqlite+aiosqlite:///{db_path}", echo=False, connect_args={"check_same_thread": False})
 
+# to be used as injected arg "session: Session = Depends(get_session)"
 def get_session():
     with Session(engine) as session:
         yield session
@@ -49,7 +57,11 @@ app = FastAPI()
 
 @app.on_event("startup")
 def on_startup():
+    # sync code
     SQLModel.metadata.create_all(engine)
+    # ASYNC:
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(SQLModel.metadata.create_all)    
 
 
 @app.get("/")
@@ -74,6 +86,8 @@ def add_sample(sample: SampleCreate, session: Session = Depends(get_session)):
 
 @app.get("/samples/{sample_id}", response_model=SampleRead)
 def get_sample(sample_id: int, session: Session = Depends(get_session)):
+    # async with AsyncSession(engine) as session:
+        # sample = await session.get(Sample, sample_id)
     sample = session.get(Sample, sample_id)
     if sample is None:
         raise HTTPException(status_code=404, detail=f"sample with id {sample_id} not found")

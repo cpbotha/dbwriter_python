@@ -9,6 +9,7 @@ python = "^3.9"
 fastapi = "*"
 sqlmodel = "*"
 uvicorn = "*"
+aiosqlite = "^0.17.0"
 
 [tool.poetry.dev-dependencies]
 
