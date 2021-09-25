@@ -19,22 +19,23 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 DB = 'postgres'
 ASYNC_DB = True
 
-# we need multiple models so that schema is correctly interpreted between
-# database, POST and GET, each of these sometimes with different optional /
-# required fields. See
-# https://sqlmodel.tiangolo.com/tutorial/fastapi/multiple-models/
+# we need four models so that schema is correctly interpreted between database,
+# POST and GET requests. Each of these has different optional / required fields.
+# See https://sqlmodel.tiangolo.com/tutorial/fastapi/multiple-models/
 class SampleBase(SQLModel):
     name: str
     # just datetime type by default will get you a timezone-less timestamp
     # so we have to pass in the Column definition with tz-capable DateTime type
     timestamp: datetime = Field(sa_column=Column(DateTime(timezone=True)))
-    v0: Optional[float] = None
+    # test field description. this only comes up in the schema it seems.
+    v0: Optional[float] = Field(None, description="v0 is the first optional sensor value")
     v1: Optional[float] = None
 
 class Sample(SampleBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
 class SampleCreate(SampleBase):
+    """Test docstring for SampleCreate"""
     pass
 
 class SampleRead(SampleBase):
@@ -43,7 +44,7 @@ class SampleRead(SampleBase):
 if DB == 'sqlite':
     db_path = Path(__file__).parent / "bleh.db"
     # disabling sqlite's same thread check because this is a toy, and I'm only
-    # benchmarking reads.
+    # benchmarking reads, and in the meantime I've switched to postgresql.
     # https://stackoverflow.com/questions/48218065/programmingerror-sqlite-objects-created-in-a-thread-can-only-be-used-in-that-sa
     # echo=True for developing, False otherwise
     if ASYNC_DB:
@@ -56,7 +57,7 @@ elif DB == 'postgres':
     else:
         engine = create_engine('postgresql://dbwriter:blehbleh@localhost:5432/dbwriter_python')
 
-# to be used as injected arg "session: Session = Depends(get_session)"
+# to be used as injected arg "session: Session = Depends(get_session)" in sync mode
 def get_session():
     with Session(engine) as session:
         yield session
@@ -85,6 +86,8 @@ if ASYNC_DB:
 
     @app.post("/samples")
     async def add_sample(sample: SampleCreate):
+        """Add a single sample to the database.
+        """
         db_sample = Sample.from_orm(sample)
         async with AsyncSession(engine) as session:
             session.add(db_sample)
@@ -94,6 +97,14 @@ if ASYNC_DB:
 
     @app.get("/samples/{sample_id}", response_model=SampleRead)
     async def get_sample(sample_id: int):
+        """Retrieve a single sample from the database.
+
+        ```python
+        # code block rendered as verbatim
+        v = 42
+        process_val(v)
+        ```
+        """
         async with AsyncSession(engine) as session:
             sample = await session.get(Sample, sample_id)
             if sample is None:
