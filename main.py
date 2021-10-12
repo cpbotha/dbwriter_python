@@ -31,6 +31,8 @@ class SampleBase(SQLModel):
     v0: Optional[float] = Field(None, description="v0 is the first optional sensor value")
     v1: Optional[float] = None
 
+# table=True is passed to the parent __init__subclass__()
+# https://docs.python.org/3/reference/datamodel.html#object.__init_subclass__
 class Sample(SampleBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
