@@ -1,4 +1,4 @@
-# nerdctl -n k8s.io build -f Dockerfile -t t mcr-focal-fixed .
+# nerdctl -n k8s.io build -f Dockerfile -t mcr-focal-fixed .
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-focal
 
 ENV LC_ALL=C.UTF-8
