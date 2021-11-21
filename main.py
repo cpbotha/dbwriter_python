@@ -1,4 +1,5 @@
 # develop on this with:
+# poetry env use 3.9
 # poetry install
 # poetry run uvicorn main:app --reload
 
@@ -76,7 +77,7 @@ if ASYNC_DB:
     async def on_startup():
         print("ASYNC startup")
         async with engine.begin() as conn:
-            await conn.run_sync(SQLModel.metadata.create_all)    
+            await conn.run_sync(SQLModel.metadata.create_all)
 
     @app.get("/samples", response_model=list[SampleRead])
     async def get_samples():
