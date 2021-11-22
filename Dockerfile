@@ -1,4 +1,7 @@
+# 1. if you're using rancher desktop on Linux:
 # nerdctl -n k8s.io build -f Dockerfile -t mcr-focal-fixed .
+# 2. OR if you're using Docker Desktop:
+# docker build -f Dockerfile -t mcr-focal-fixed .
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-focal
 
 ENV LC_ALL=C.UTF-8
