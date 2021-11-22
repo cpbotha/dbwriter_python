@@ -37,8 +37,19 @@ spec:
   volumes:
   - name: code-volume
     hostPath:
-      # directory location on host
-      path: /home/cpbotha/Dropbox/work/code/sandbox/dbwriter_comparison/dbwriter_python
+
+      # location of your code on the host; on Linux this is the actual directory:
+      #path: /home/cpbotha/Dropbox/work/code/sandbox/dbwriter_comparison/dbwriter_python
+
+      # On Windows with docker for desktop, it's MOAR COMPLICATED:
+      # - bind mount on the WSL2 image:
+      #    sudo mount --bind /bleh/bleh/dbwriter_python /mnt/wsl/dbwriter_python
+      # - this maps to:
+      #   /run/desktop/mnt/host/wsl/... for docker and kubernetes
+      #   see https://github.com/docker/for-win/issues/5325#issuecomment-567594291
+      #   (on docker-desktop wsl2 image, I can only see it as /mnt/host/wsl/... )
+      path: /run/desktop/mnt/host/wsl/dbwriter_python
+
       # this field is optional
       type: Directory
   - name: cache-volume
@@ -57,7 +68,8 @@ metadata:
   name: local-path-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteOnce 
+  # this looks like it could be rancher-specific!
   storageClassName: local-path
   resources:
     requests:
