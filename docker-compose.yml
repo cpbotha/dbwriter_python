@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./my-postgres.conf:/etc/postgresql/postgresql.conf
+    environment:
+      - POSTGRES_PASSWORD=blehbleh
+    # so we can make pgcat wait until postgres is actually ready to receive connections
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      start_period: 5s
